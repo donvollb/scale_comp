@@ -1,0 +1,85 @@
+---
+title: "Response Categories and Variance"
+subtitle: "Shiny App: How Mapping Latent Values Onto Categories Can Change Variances on Likert-Type Scales and Visual Analogue Scales"
+author:
+  - name: "Dominik Vollbracht"
+    email: d.vollbracht@rptu.de
+filters:
+    - shinylive
+format:
+  html:
+    toc: true
+    code-tools: true
+embed-resources: false
+---
+
+# Shiny App
+
+## General Explanation
+
+This app illustrates how mapping latent values onto a few response categories can change variances. It compares a visual analogue scale (VAS) from 0 to 100 with a seven-point and a five-point Likert-type scale.
+
+On a VAS, a small change in the latent value shows as a small shift. On a Likert-type scale, it is either lost, if the value stays within one category, or shown as a full step, if it crosses a threshold. Whether this adds or removes variance depends on where the values lie relative to the thresholds. The app illustrates this possible mechanism. 
+
+## Mapping and Rescaling
+
+All three formats measure the same latent value on a line from 0 to 1, and their ends correspond. A VAS response is the latent value times 100, rounded to a whole number. A Likert-type response is the category whose region contains the latent value. With equidistant thresholds, this is the nearest category (five-point scale: categories at 0, .25, .5, .75, and 1; thresholds at .125, .375, .625, and .875). Latent values beyond 0 or 1 are mapped onto the ends.
+
+Variances are shown in each format's own metric and after linear rescaling to 0–1, as in [Vollbracht et al. (2026)](#sec-reference): VAS responses are divided by 100, and category $k$ of a $K$-point scale becomes $(k - 1)/(K - 1)$. Only the rescaled variances can be compared across formats.
+
+## Tabs
+
+**1 Measurement per Person**: Each person gives one response, drawn from a normal or uniform distribution. The plot shows the distribution of responses in each format, and the table shows means, variances, and the share of responses at the ends.
+
+**50 Measurements per Person**: Each person gives 50 responses, as in an ambulatory assessment study. Person means are drawn from a normal or uniform distribution, and the responses vary normally around them. The table shows the within-person variance, the variance of the person means, and the intraclass correlation (ICC). The plot shows three example persons.
+
+In both tabs, the thresholds can be **equidistant** or **random**. Random category widths are drawn around the equidistant widths, and the same thresholds apply to all persons, as for a single item. Because the rescaling still treats the categories as equally spaced, random thresholds also show the effect of unequal category widths. The VAS is not affected.
+
+## App
+
+*It can take a few seconds (around 10s-30s) to load the app, please be patient.*
+
+```{=html}
+<button id="fullscreen-btn" class="btn btn-primary" type="button">Show the app in full screen</button>
+<script>
+// Hide the button where full screen is not available for page elements (e.g., iPhones)
+if (!document.fullscreenEnabled && !document.webkitFullscreenEnabled) {
+  document.getElementById("fullscreen-btn").style.display = "none";
+}
+document.getElementById("fullscreen-btn").addEventListener("click", function () {
+  const app = document.querySelector("div.shinylive-wrapper");
+  if (!app) return;
+  if (app.requestFullscreen) {
+    app.requestFullscreen();
+  } else if (app.webkitRequestFullscreen) {
+    app.webkitRequestFullscreen();
+  }
+});
+</script>
+<style>
+div.shinylive-wrapper:fullscreen {
+  background-color: white;
+  overflow: auto;
+  margin: 0;
+}
+div.shinylive-wrapper:fullscreen iframe.app-frame {
+  height: 100vh !important;
+}
+</style>
+```
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 1600
+#| viewerWidth: 2000
+
+{{< include app.R >}}
+```
+
+## Running the App Locally
+
+The app is also available as an R script ([`app.R`](https://github.com/donvollb/scale_comp/blob/main/app.R)). It requires the packages `shiny` and `shinythemes` and can be started with `shiny::runApp("app.R")`.
+
+# References {#sec-reference}
+
+Vollbracht, D., Ottenstein, C., Ecker, S., & Lischetzke, T. (2026). Slider versus Likert scales: Psychometric properties in ambulatory assessment. *Behavior Research Methods*, *58*(4), Article 97. [https://doi.org/10.3758/s13428-026-02992-4](https://doi.org/10.3758/s13428-026-02992-4)

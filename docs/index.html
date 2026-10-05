@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Dominik Vollbracht">
+
+<title>Response Categories and Variance</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="index_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting-de070a7b0ab54f8780927367ac907214.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<meta name="shinylive:serviceworker_dir" content=".">
+<script src="index_files/libs/quarto-contrib/shinylive-0.10.12/shinylive/load-shinylive-sw.js" type="module"></script>
+<script src="index_files/libs/quarto-contrib/shinylive-0.10.12/shinylive/run-python-blocks.js" type="module"></script>
+<link href="index_files/libs/quarto-contrib/shinylive-0.10.12/shinylive/shinylive.css" rel="stylesheet">
+<link href="index_files/libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#shiny-app" id="toc-shiny-app" class="nav-link active" data-scroll-target="#shiny-app">Shiny App</a>
+  <ul class="collapse">
+  <li><a href="#general-explanation" id="toc-general-explanation" class="nav-link" data-scroll-target="#general-explanation">General Explanation</a></li>
+  <li><a href="#mapping-and-rescaling" id="toc-mapping-and-rescaling" class="nav-link" data-scroll-target="#mapping-and-rescaling">Mapping and Rescaling</a></li>
+  <li><a href="#tabs" id="toc-tabs" class="nav-link" data-scroll-target="#tabs">Tabs</a></li>
+  <li><a href="#app" id="toc-app" class="nav-link" data-scroll-target="#app">App</a></li>
+  <li><a href="#running-the-app-locally" id="toc-running-the-app-locally" class="nav-link" data-scroll-target="#running-the-app-locally">Running the App Locally</a></li>
+  </ul></li>
+  <li><a href="#sec-reference" id="toc-sec-reference" class="nav-link" data-scroll-target="#sec-reference">References</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Response Categories and Variance</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">Shiny App: How Mapping Latent Values Onto Categories Can Change Variances on Likert-Type Scales and Visual Analogue Scales</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Dominik Vollbracht <a href="mailto:d.vollbracht@rptu.de" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="shiny-app" class="level1">
+<h1>Shiny App</h1>
+<section id="general-explanation" class="level2">
+<h2 class="anchored" data-anchor-id="general-explanation">General Explanation</h2>
+<p>This app illustrates how mapping latent values onto a few response categories can change variances. It compares a visual analogue scale (VAS) from 0 to 100 with a seven-point and a five-point Likert-type scale.</p>
+<p>On a VAS, a small change in the latent value shows as a small shift. On a Likert-type scale, it is either lost, if the value stays within one category, or shown as a full step, if it crosses a threshold. Whether this adds or removes variance depends on where the values lie relative to the thresholds. The app illustrates this possible mechanism.</p>
+</section>
+<section id="mapping-and-rescaling" class="level2">
+<h2 class="anchored" data-anchor-id="mapping-and-rescaling">Mapping and Rescaling</h2>
+<p>All three formats measure the same latent value on a line from 0 to 1, and their ends correspond. A VAS response is the latent value times 100, rounded to a whole number. A Likert-type response is the category whose region contains the latent value. With equidistant thresholds, this is the nearest category (five-point scale: categories at 0, .25, .5, .75, and 1; thresholds at .125, .375, .625, and .875). Latent values beyond 0 or 1 are mapped onto the ends.</p>
+<p>Variances are shown in each format’s own metric and after linear rescaling to 0–1, as in <a href="#sec-reference">Vollbracht et al.&nbsp;(2026)</a>: VAS responses are divided by 100, and category <span class="math inline">\(k\)</span> of a <span class="math inline">\(K\)</span>-point scale becomes <span class="math inline">\((k - 1)/(K - 1)\)</span>. Only the rescaled variances can be compared across formats.</p>
+</section>
+<section id="tabs" class="level2">
+<h2 class="anchored" data-anchor-id="tabs">Tabs</h2>
+<p><strong>1 Measurement per Person</strong>: Each person gives one response, drawn from a normal or uniform distribution. The plot shows the distribution of responses in each format, and the table shows means, variances, and the share of responses at the ends.</p>
+<p><strong>50 Measurements per Person</strong>: Each person gives 50 responses, as in an ambulatory assessment study. Person means are drawn from a normal or uniform distribution, and the responses vary normally around them. The table shows the within-person variance, the variance of the person means, and the intraclass correlation (ICC). The plot shows three example persons.</p>
+<p>In both tabs, the thresholds can be <strong>equidistant</strong> or <strong>random</strong>. Random category widths are drawn around the equidistant widths, and the same thresholds apply to all persons, as for a single item. Because the rescaling still treats the categories as equally spaced, random thresholds also show the effect of unequal category widths. The VAS is not affected.</p>
+</section>
+<section id="app" class="level2">
+<h2 class="anchored" data-anchor-id="app">App</h2>
+<p><em>It can take a few seconds (around 10s-30s) to load the app, please be patient.</em></p>
+<button id="fullscreen-btn" class="btn btn-primary" type="button">Show the app in full screen</button>
+<script>
+// Hide the button where full screen is not available for page elements (e.g., iPhones)
+if (!document.fullscreenEnabled && !document.webkitFullscreenEnabled) {
+  document.getElementById("fullscreen-btn").style.display = "none";
+}
+document.getElementById("fullscreen-btn").addEventListener("click", function () {
+  const app = document.querySelector("div.shinylive-wrapper");
+  if (!app) return;
+  if (app.requestFullscreen) {
+    app.requestFullscreen();
+  } else if (app.webkitRequestFullscreen) {
+    app.webkitRequestFullscreen();
+  }
+});
+</script>
+<style>
+div.shinylive-wrapper:fullscreen {
+  background-color: white;
+  overflow: auto;
+  margin: 0;
+}
+div.shinylive-wrapper:fullscreen iframe.app-frame {
+  height: 100vh !important;
+}
+</style>
+<pre class="shinylive-r" data-engine="r"><code>#| '!! shinylive warning !!': |
+#|   shinylive does not work in self-contained HTML documents.
+#|   Please set `embed-resources: false` in your metadata.
+#| standalone: true
+#| viewerHeight: 1600
+#| viewerWidth: 2000
+
+# Response Categories and Variance
+# Shiny app illustrating how mapping latent values onto a few response
+# categories can change variances. It compares a visual analogue scale (VAS)
+# from 0 to 100 with a seven-point and a five-point Likert-type scale.
+#
+# Run locally: shiny::runApp("app.R")
+# Required packages: shiny, shinythemes
+
+library(shiny)
+library(shinythemes)
+
+n_occasions &lt;- 50
+
+# ---- Mapping ------------------------------------------------------------------
+
+# Thresholds halfway between the category positions on the 0-1 line
+equal_thresholds &lt;- function(k) (seq_len(k - 1) - 0.5) / (k - 1)
+
+# Category widths drawn from a Dirichlet distribution around the equidistant
+# widths; higher irregularity gives more unequal widths
+random_thresholds &lt;- function(k, irregularity) {
+  widths &lt;- c(0.5, rep(1, k - 2), 0.5) / (k - 1)
+  g &lt;- rgamma(k, shape = widths * 4 / irregularity^2)
+  cumsum(g / sum(g))[-k]
+}
+
+to_vas &lt;- function(latent) round(100 * pmin(pmax(latent, 0), 1))
+to_likert &lt;- function(latent, thresholds) 1 + findInterval(latent, thresholds)
+
+# Rescaling to the 0-1 interval; categories treated as equally spaced
+rescale_vas &lt;- function(y) y / 100
+rescale_likert &lt;- function(y, k) (y - 1) / (k - 1)
+
+draw_latent &lt;- function(n, distribution, mean, sd) {
+  if (distribution == "normal") {
+    rnorm(n, mean, sd)
+  } else {
+    runif(n, mean - sqrt(3) * sd, mean + sqrt(3) * sd)
+  }
+}
+
+# Responses in all formats; works for vectors and person-by-occasion matrices
+map_formats &lt;- function(latent, thresholds) {
+  vas &lt;- to_vas(latent)
+  l7 &lt;- to_likert(latent, thresholds$t7)
+  l5 &lt;- to_likert(latent, thresholds$t5)
+  dim(vas) &lt;- dim(l7) &lt;- dim(l5) &lt;- dim(latent)
+  list(
+    own = list(latent = latent, vas = vas, l7 = l7, l5 = l5),
+    rescaled = list(latent = latent, vas = rescale_vas(vas),
+                    l7 = rescale_likert(l7, 7), l5 = rescale_likert(l5, 5)),
+    at_ends = c(mean(latent &lt; 0 | latent &gt; 1), mean(vas %in% c(0, 100)),
+                mean(l7 %in% c(1, 7)), mean(l5 %in% c(1, 5)))
+  )
+}
+
+format_names &lt;- c("Latent values (0–1)", "VAS (0–100)",
+                  "Seven-point scale (1–7)", "Five-point scale (1–5)")
+
+# ---- Tables -------------------------------------------------------------------
+
+num &lt;- function(x, digits) formatC(x, format = "f", digits = digits)
+
+table_single &lt;- function(m) {
+  var_own &lt;- sapply(m$own, var)
+  var_01 &lt;- sapply(m$rescaled, var)
+  data.frame(
+    Format = format_names,
+    `Mean (own metric)` = num(sapply(m$own, mean), 2),
+    `Variance (own metric)` = num(var_own, 3),
+    `Mean (0–1)` = num(sapply(m$rescaled, mean), 3),
+    `Variance (0–1)` = num(var_01, 4),
+    `Ratio to VAS (0–1)` = num(var_01 / var_01[2], 2),
+    `At the ends` = paste0(num(100 * m$at_ends, 1), "%"),
+    check.names = FALSE
+  )
+}
+
+variance_parts &lt;- function(y) {
+  within &lt;- mean(apply(y, 1, var))
+  between &lt;- var(rowMeans(y))
+  c(within = within, between = between, icc = between / (between + within))
+}
+
+table_multi &lt;- function(m) {
+  own &lt;- sapply(m$own, variance_parts)
+  r01 &lt;- sapply(m$rescaled, variance_parts)
+  data.frame(
+    Format = format_names,
+    `Within-person variance (own metric)` = num(own["within", ], 3),
+    `Variance of person means (own metric)` = num(own["between", ], 3),
+    `Within-person variance (0–1)` = num(r01["within", ], 4),
+    `Variance of person means (0–1)` = num(r01["between", ], 4),
+    `Within-person ratio to VAS` = num(r01["within", ] / r01["within", 2], 2),
+    ICC = num(r01["icc", ], 2),
+    `At the ends` = paste0(num(100 * m$at_ends, 1), "%"),
+    check.names = FALSE
+  )
+}
+
+table_thresholds &lt;- function(thresholds) {
+  data.frame(
+    Scale = c("Seven-point scale", "Five-point scale"),
+    `Thresholds on the 0–1 line` = c(paste(num(thresholds$t7, 3), collapse = ", "),
+                                          paste(num(thresholds$t5, 3), collapse = ", ")),
+    check.names = FALSE
+  )
+}
+
+# ---- Plots --------------------------------------------------------------------
+
+col_model &lt;- "#cc4778"
+col_threshold &lt;- "grey55"
+col_persons &lt;- c("#0d0887", "#cc4778", "#f89540")
+
+likert_positions &lt;- function(k) (seq_len(k) - 1) / (k - 1)
+
+# Distribution of responses in each format, shown at their positions on the 0-1 line
+plot_single &lt;- function(m, thresholds) {
+  old &lt;- par(mfrow = c(3, 1), mar = c(4.1, 4.6, 2.6, 1.1))
+  on.exit(par(old))
+  n &lt;- length(m$own$vas)
+
+  share_vas &lt;- hist(m$rescaled$vas, breaks = seq(0, 1, 0.05), plot = FALSE)$counts / n
+  plot(NA, xlim = c(-0.04, 1.04), ylim = c(0, max(share_vas, 0.05) * 1.15),
+       xaxs = "i", yaxs = "i", xaxt = "n", xlab = "",
+       ylab = expression(bold(Share)), main = "VAS (bins of 5 points)")
+  axis(1, at = seq(0, 1, 0.25), labels = seq(0, 100, 25))
+  rect(seq(0, 0.95, 0.05), 0, seq(0.05, 1, 0.05), share_vas, col = col_model,
+       border = "white")
+
+  for (k in c(7, 5)) {
+    y &lt;- if (k == 7) m$own$l7 else m$own$l5
+    thr &lt;- if (k == 7) thresholds$t7 else thresholds$t5
+    share &lt;- tabulate(y, k) / n
+    pos &lt;- likert_positions(k)
+    plot(NA, xlim = c(-0.04, 1.04), ylim = c(0, max(share, 0.05) * 1.15),
+         xaxs = "i", yaxs = "i", xaxt = "n",
+         xlab = if (k == 5) expression(bold(Response ~ "(at its position on the 0–1 line)")) else "",
+         ylab = expression(bold(Share)),
+         main = paste0(if (k == 7) "Seven" else "Five",
+                       "-point scale (dashed lines: thresholds)"))
+    axis(1, at = pos, labels = seq_len(k))
+    abline(v = thr, col = col_threshold, lty = 2, lwd = 1.5)
+    rect(pos - 0.025, 0, pos + 0.025, share, col = col_model, border = NA)
+  }
+}
+
+# Responses of three example persons across the occasions
+plot_multi &lt;- function(m, thresholds, persons) {
+  old &lt;- par(mfrow = c(3, 1), mar = c(4.1, 4.6, 2.6, 1.1))
+  on.exit(par(old))
+  panels &lt;- list(
+    list(y = m$rescaled$vas, main = "VAS", at = seq(0, 1, 0.25),
+         labels = seq(0, 100, 25), thr = NULL),
+    list(y = m$rescaled$l7, main = "Seven-point scale (dashed lines: thresholds)",
+         at = likert_positions(7), labels = 1:7, thr = thresholds$t7),
+    list(y = m$rescaled$l5, main = "Five-point scale (dashed lines: thresholds)",
+         at = likert_positions(5), labels = 1:5, thr = thresholds$t5)
+  )
+  for (i in seq_along(panels)) {
+    p &lt;- panels[[i]]
+    plot(NA, xlim = c(1, n_occasions), ylim = c(-0.04, 1.04), yaxs = "i",
+         yaxt = "n", main = p$main, ylab = expression(bold(Response)),
+         xlab = if (i == 3) expression(bold(Measurement ~ occasion)) else "")
+    axis(2, at = p$at, labels = p$labels, las = 1)
+    if (!is.null(p$thr)) abline(h = p$thr, col = col_threshold, lty = 2, lwd = 1.5)
+    for (j in seq_along(persons)) {
+      lines(seq_len(n_occasions), p$y[persons[j], ], col = col_persons[j],
+            type = "o", pch = 16, cex = 0.7, lwd = 1.5)
+    }
+    if (i == 1) {
+      legend("top", horiz = TRUE, bty = "n", col = col_persons, lwd = 1.5,
+             pch = 16, legend = paste("Person", seq_along(persons)))
+    }
+  }
+}
+
+# ---- Tabs (module) ------------------------------------------------------------
+
+txt &lt;- list(
+  distribution_single = "Distribution of the latent values",
+  distribution_multi = "Distribution of the person means",
+  mean_single = "Mean of the latent values (0–1 line)",
+  sd_single = "Standard deviation of the latent values",
+  mean_multi = "Mean of the person means (0–1 line)",
+  sd_between = "Standard deviation of the person means",
+  sd_within = "Within-person standard deviation (normal distribution around the person mean)",
+  n = "Number of persons",
+  thresholds = "Thresholds between the categories",
+  irregularity = "Irregularity of the category widths"
+)
+
+scale_tab_ui &lt;- function(id, title, multi = FALSE) {
+  ns &lt;- NS(id)
+  latent &lt;- if (multi) {
+    list(
+      radioButtons(ns("distribution"), txt$distribution_multi,
+                   c("Normal" = "normal", "Uniform" = "uniform")),
+      sliderInput(ns("mean"), txt$mean_multi, min = 0, max = 1, value = 0.5, step = 0.01),
+      sliderInput(ns("sd"), txt$sd_between, min = 0, max = 0.5, value = 0.15, step = 0.01),
+      sliderInput(ns("sd_within"), txt$sd_within, min = 0.01, max = 0.3, value = 0.1,
+                  step = 0.01)
+    )
+  } else {
+    list(
+      radioButtons(ns("distribution"), txt$distribution_single,
+                   c("Normal" = "normal", "Uniform" = "uniform")),
+      sliderInput(ns("mean"), txt$mean_single, min = 0, max = 1, value = 0.5, step = 0.01),
+      sliderInput(ns("sd"), txt$sd_single, min = 0.01, max = 0.5, value = 0.2, step = 0.01)
+    )
+  }
+
+  tabPanel(
+    title,
+    sidebarLayout(
+      sidebarPanel(
+        h4(tags$b(if (multi) "Persons and Occasions" else "Latent Values")),
+        latent,
+        sliderInput(ns("n"), txt$n, min = 100, max = 5000, value = 1000, step = 100),
+        actionButton(ns("resample"), "Draw a new sample"),
+        tags$hr(style = "margin: 20px 0; border: 1px solid gray;"),
+        h4(tags$b("Likert-Type Categories")),
+        radioButtons(ns("threshold_type"), txt$thresholds,
+                     c("Equidistant" = "equidistant", "Random" = "random")),
+        conditionalPanel(
+          "input.threshold_type == 'random'", ns = ns,
+          sliderInput(ns("irregularity"), txt$irregularity, min = 0.1, max = 1,
+                      value = 0.5, step = 0.1),
+          actionButton(ns("new_thresholds"), "Draw new thresholds")
+        )
+      ),
+      mainPanel(
+        plotOutput(ns("plot"), height = "720px"),
+        h4(tags$b("Means and Variances"), style = "text-align: center;"),
+        tableOutput(ns("variances")),
+        tags$p(if (multi) {
+          "Within-person variance: variance across a person's 50 responses, averaged across persons. ICC: variance of the person means divided by the sum of both variances. Ratio: within-person variance on the 0–1 line relative to the VAS. At the ends: latent values beyond 0 or 1, VAS responses of 0 or 100, and responses in the lowest or highest category."
+        } else {
+          "Own metric: VAS from 0 to 100, categories from 1 to 5 or 1 to 7. 0–1: VAS responses divided by 100; category k of a K-point scale rescaled to (k − 1)/(K − 1). Ratio: variance on the 0–1 line relative to the VAS. At the ends: latent values beyond 0 or 1, VAS responses of 0 or 100, and responses in the lowest or highest category."
+        }),
+        h4(tags$b("Thresholds"), style = "text-align: center;"),
+        tableOutput(ns("thresholds"))
+      )
+    )
+  )
+}
+
+scale_tab_server &lt;- function(id, multi = FALSE) {
+  moduleServer(id, function(input, output, session) {
+    # Same sample and thresholds until the buttons are pressed
+    sample_seed &lt;- reactiveVal(1)
+    observeEvent(input$resample, sample_seed(sample_seed() + 1))
+    threshold_seed &lt;- reactiveVal(1)
+    observeEvent(input$new_thresholds, threshold_seed(threshold_seed() + 1))
+
+    thresholds &lt;- reactive({
+      if (input$threshold_type == "equidistant") {
+        list(t7 = equal_thresholds(7), t5 = equal_thresholds(5))
+      } else {
+        set.seed(10000 + threshold_seed())
+        list(t7 = random_thresholds(7, input$irregularity),
+             t5 = random_thresholds(5, input$irregularity))
+      }
+    })
+
+    person_means &lt;- reactive({
+      set.seed(sample_seed())
+      draw_latent(input$n, input$distribution, input$mean, input$sd)
+    })
+
+    latent &lt;- reactive({
+      means &lt;- person_means()
+      if (!multi) return(means)
+      set.seed(5000 + sample_seed())
+      means + matrix(rnorm(length(means) * n_occasions, 0, input$sd_within),
+                     nrow = length(means))
+    })
+
+    mapped &lt;- reactive(map_formats(latent(), thresholds()))
+
+    # Example persons at about the 10th, 50th, and 90th percentile of the means
+    persons &lt;- reactive({
+      means &lt;- person_means()
+      sapply(quantile(means, c(0.1, 0.5, 0.9)), function(q) which.min(abs(means - q)))
+    })
+
+    output$plot &lt;- renderPlot({
+      if (multi) {
+        plot_multi(mapped(), thresholds(), persons())
+      } else {
+        plot_single(mapped(), thresholds())
+      }
+    })
+    output$variances &lt;- renderTable({
+      if (multi) table_multi(mapped()) else table_single(mapped())
+    }, align = "l")
+    output$thresholds &lt;- renderTable(table_thresholds(thresholds()), align = "l")
+  })
+}
+
+# ---- App ----------------------------------------------------------------------
+
+ui &lt;- navbarPage(
+  title = "Response Categories and Variance: Likert-Type Scales and VAS",
+  theme = shinytheme("cerulean"),
+  scale_tab_ui("single", "1 Measurement per Person"),
+  scale_tab_ui("multi", "50 Measurements per Person", multi = TRUE)
+)
+
+server &lt;- function(input, output, session) {
+  scale_tab_server("single")
+  scale_tab_server("multi", multi = TRUE)
+}
+
+shinyApp(ui = ui, server = server)
+</code></pre>
+</section>
+<section id="running-the-app-locally" class="level2">
+<h2 class="anchored" data-anchor-id="running-the-app-locally">Running the App Locally</h2>
+<p>The app is also available as an R script (<a href="https://github.com/donvollb/scale_comp/blob/main/app.R"><code>app.R</code></a>). It requires the packages <code>shiny</code> and <code>shinythemes</code> and can be started with <code>shiny::runApp("app.R")</code>.</p>
+</section>
+</section>
+<section id="sec-reference" class="level1">
+<h1>References</h1>
+<p>Vollbracht, D., Ottenstein, C., Ecker, S., &amp; Lischetzke, T. (2026). Slider versus Likert scales: Psychometric properties in ambulatory assessment. <em>Behavior Research Methods</em>, <em>58</em>(4), Article 97. <a href="https://doi.org/10.3758/s13428-026-02992-4">https://doi.org/10.3758/s13428-026-02992-4</a></p>
+<!-- -->
+
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Response Categories and Variance"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Shiny App: How Mapping Latent Values Onto Categories Can Change Variances on Likert-Type Scales and Visual Analogue Scales"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">  - name: "Dominik Vollbracht"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">    email: d.vollbracht@rptu.de</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="an">filters:</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">    - shinylive</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="an">embed-resources:</span><span class="co"> false</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu"># Shiny App</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="fu">## General Explanation</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>This app illustrates how mapping latent values onto a few response categories can change variances. It compares a visual analogue scale (VAS) from 0 to 100 with a seven-point and a five-point Likert-type scale.</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>On a VAS, a small change in the latent value shows as a small shift. On a Likert-type scale, it is either lost, if the value stays within one category, or shown as a full step, if it crosses a threshold. Whether this adds or removes variance depends on where the values lie relative to the thresholds. The app illustrates this possible mechanism. </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mapping and Rescaling</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>All three formats measure the same latent value on a line from 0 to 1, and their ends correspond. A VAS response is the latent value times 100, rounded to a whole number. A Likert-type response is the category whose region contains the latent value. With equidistant thresholds, this is the nearest category (five-point scale: categories at 0, .25, .5, .75, and 1; thresholds at .125, .375, .625, and .875). Latent values beyond 0 or 1 are mapped onto the ends.</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>Variances are shown in each format's own metric and after linear rescaling to 0–1, as in <span class="co">[</span><span class="ot">Vollbracht et al. (2026)</span><span class="co">](#sec-reference)</span>: VAS responses are divided by 100, and category $k$ of a $K$-point scale becomes $(k - 1)/(K - 1)$. Only the rescaled variances can be compared across formats.</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tabs</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>**1 Measurement per Person**: Each person gives one response, drawn from a normal or uniform distribution. The plot shows the distribution of responses in each format, and the table shows means, variances, and the share of responses at the ends.</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>**50 Measurements per Person**: Each person gives 50 responses, as in an ambulatory assessment study. Person means are drawn from a normal or uniform distribution, and the responses vary normally around them. The table shows the within-person variance, the variance of the person means, and the intraclass correlation (ICC). The plot shows three example persons.</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>In both tabs, the thresholds can be **equidistant** or **random**. Random category widths are drawn around the equidistant widths, and the same thresholds apply to all persons, as for a single item. Because the rescaling still treats the categories as equally spaced, random thresholds also show the effect of unequal category widths. The VAS is not affected.</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="fu">## App</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>*It can take a few seconds (around 10s-30s) to load the app, please be patient.*</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;button id="fullscreen-btn" class="btn btn-primary" type="button"&gt;Show the app in full screen&lt;/button&gt;</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;script&gt;</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="in">// Hide the button where full screen is not available for page elements (e.g., iPhones)</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="in">if (!document.fullscreenEnabled &amp;&amp; !document.webkitFullscreenEnabled) {</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="in">  document.getElementById("fullscreen-btn").style.display = "none";</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="in">document.getElementById("fullscreen-btn").addEventListener("click", function () {</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="in">  const app = document.querySelector("div.shinylive-wrapper");</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!app) return;</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="in">  if (app.requestFullscreen) {</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="in">    app.requestFullscreen();</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (app.webkitRequestFullscreen) {</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="in">    app.webkitRequestFullscreen();</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="in">});</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/script&gt;</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;style&gt;</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a><span class="in">div.shinylive-wrapper:fullscreen {</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a><span class="in">  background-color: white;</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="in">  overflow: auto;</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="in">  margin: 0;</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="in">div.shinylive-wrapper:fullscreen iframe.app-frame {</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="in">  height: 100vh !important;</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/style&gt;</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a><span class="in">```{shinylive-r}</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a><span class="co">#| standalone: true</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="co">#| viewerHeight: 1600</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="co">#| viewerWidth: 2000</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="ex">{{</span><span class="op">&lt;</span> include <span class="ex">app.R</span> <span class="op">&gt;</span>}}</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a><span class="fu">## Running the App Locally</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>The app is also available as an R script (<span class="co">[</span><span class="ot">`app.R`</span><span class="co">](https://github.com/donvollb/scale_comp/blob/main/app.R)</span>). It requires the packages <span class="in">`shiny`</span> and <span class="in">`shinythemes`</span> and can be started with <span class="in">`shiny::runApp("app.R")`</span>.</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a><span class="fu"># References {#sec-reference}</span></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>Vollbracht, D., Ottenstein, C., Ecker, S., &amp; Lischetzke, T. (2026). Slider versus Likert scales: Psychometric properties in ambulatory assessment. *Behavior Research Methods*, *58*(4), Article 97. <span class="co">[</span><span class="ot">https://doi.org/10.3758/s13428-026-02992-4</span><span class="co">](https://doi.org/10.3758/s13428-026-02992-4)</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
